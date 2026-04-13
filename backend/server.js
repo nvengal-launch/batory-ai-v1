@@ -6,6 +6,8 @@ dotenv.config();
 import { chatWithAI } from "./services/openai.service.js";
 import { globalSearch } from "./services/search.service.js";
 import { processAISQL } from "./services/ai-sql.service.js";
+import { getAllProductsYearly } from "./services/data.service.js";
+import { predictAllProducts } from "./services/predict.service.js";
 
 const app = express();
 app.use(cors());
@@ -39,6 +41,16 @@ app.post("/ai-sql", async (req, res) => {
   // console.log('question >>>', req.body.message);
   const result = await processAISQL(req.body.message);
   // console.log('result >>>', result);
+  res.json(result);
+
+});
+
+app.get("/predict-products", async (req, res) => {
+
+  const data = await getAllProductsYearly();
+
+  const result = await predictAllProducts(data);
+
   res.json(result);
 
 });

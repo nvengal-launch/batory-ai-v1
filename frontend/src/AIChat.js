@@ -7,6 +7,10 @@ export default function AIChat() {
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // prediction states
+  const [prediction, setPrediction] = useState([]);
+  const [insight, setInsight] = useState("");
+
   const sendMessage = async () => {
 
     if (!message) return;
@@ -40,6 +44,27 @@ export default function AIChat() {
 
     setLoading(false);
   };
+
+
+  const predictProducts = async () => {
+
+  setLoading(true);
+
+  try {
+
+    const res = await axios.get(
+      "http://localhost:5000/predict-products"
+    );
+    console.log('res >>>', res);
+    setPrediction(res.data.topProducts);
+    setInsight(res.data.insight);
+
+  } catch (err) {
+    console.error(err);
+  }
+
+  setLoading(false);
+};
 
   return (
     <div style={{ padding: 20 }}>
@@ -108,6 +133,51 @@ export default function AIChat() {
         Send
       </button>
 
+      <button onClick={predictProducts} style={{ marginLeft: 10 }}>
+        Predict Products 2026
+      </button>
+
+      <div>
+        {insight && (
+          <div style={{
+            background: "#eef5ff",
+            padding: 20,
+            marginTop: 20
+          }}>
+            <h3>Prediction Insight</h3>
+            <p>{insight}</p>
+          </div>
+        )}
+
+        {/* Predicted Products */}
+        {prediction.length > 0 && (
+          <div style={{ marginTop: 20 }}>
+
+            <h3>Top Predicted Products</h3>
+
+            {prediction.map((p, index) => (
+              <div key={index}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: 10,
+                  marginBottom: 10
+                }}
+              >
+                <strong>{p.product}</strong>
+
+                <p>
+                  Demand: {Math.round(p.prediction)}
+                </p>
+
+                <p>
+                  Trend: {p.slope > 0 ? "📈 Increasing" : "📉 Decreasing"}
+                </p>
+              </div>
+            ))}
+
+          </div>
+        )}
+      </div>
     </div>
   );
 }
