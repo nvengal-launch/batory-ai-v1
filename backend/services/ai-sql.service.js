@@ -68,11 +68,8 @@ ${dbSchema}
 export async function processAISQL(question) {
 
   const dbSchema = await getDBSchema();
-//   console.log('dbSchema >>>', dbSchema);
   const sql = await generateSQL(question, dbSchema);
-//   console.log('Generated SQL >>>', sql);
   const data = await runQuery(sql);
-//   console.log('Query Result >>>', data);
   return { sql, data };
 
 }

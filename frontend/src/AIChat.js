@@ -31,8 +31,6 @@ export default function AIChat() {
         { message }
       );
 
-      console.log('AI Response >>>', res.data);
-
       setChat([
         ...newChat,
         { role: "ai", response: res.data.data, sql: res.data.sql }
@@ -48,23 +46,22 @@ export default function AIChat() {
 
   const predictProducts = async () => {
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
+    try {
 
-    const res = await axios.get(
-      "http://localhost:5000/predict-products"
-    );
-    console.log('res >>>', res);
-    setPrediction(res.data.topProducts);
-    setInsight(res.data.insight);
+      const res = await axios.get(
+        "http://localhost:5000/predict-products"
+      );
+      setPrediction(res.data.topProducts);
+      setInsight(res.data.insight);
 
-  } catch (err) {
-    console.error(err);
-  }
+    } catch (err) {
+      console.error(err);
+    }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div style={{ padding: 20 }}>
@@ -138,7 +135,7 @@ export default function AIChat() {
       </button>
 
       <div>
-        {insight && (
+        {/* {insight && (
           <div style={{
             background: "#eef5ff",
             padding: 20,
@@ -147,7 +144,7 @@ export default function AIChat() {
             <h3>Prediction Insight</h3>
             <p>{insight}</p>
           </div>
-        )}
+        )} */}
 
         {/* Predicted Products */}
         {prediction.length > 0 && (

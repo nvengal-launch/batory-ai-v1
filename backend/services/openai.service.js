@@ -10,13 +10,10 @@ const client = new OpenAI({
 export async function generateSQL(userMessage, dbSchema) {
 
   const systemPrompt = `
-You are a Microsoft SQL Server T-SQL generator.
-
-Convert user request into ONE SELECT query only.
-
-Schema:
-${dbSchema}
-`;
+    You are a Microsoft SQL Server T-SQL generator.
+    Convert user request into ONE SELECT query only.
+    Schema: ${dbSchema}
+  `;
 
   const res = await client.chat.completions.create({
     model: "gpt-4o-mini",
