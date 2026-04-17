@@ -5,6 +5,8 @@ export async function predictAllProducts(data) {
 
   const grouped = {};
 
+  console.log('Data for prediction >>> predictAllProducts', data);
+
   // group by product
   data.forEach(d => {
     if (!grouped[d.product_name]) {
@@ -14,9 +16,9 @@ export async function predictAllProducts(data) {
   });
 
   let predictions = [];
-
+  console.log('Grouped Data for prediction >>>', grouped);
   for (let product in grouped) {
-
+    // console.log(`Predicting for product >>> ${product}`);
     const stats = predictProductDemand(grouped[product]);
 
     predictions.push({
@@ -30,8 +32,8 @@ export async function predictAllProducts(data) {
   predictions.sort((a, b) => b.prediction - a.prediction);
 
   // take top 5
-  const topProducts = predictions.slice(0, 5);
-
+  const topProducts = predictions.slice(0, 10);
+//   console.log('Top Predicted Products >>>', topProducts);
   // AI explanation
   const insight = await chatWithAI(`
 Top predicted products:

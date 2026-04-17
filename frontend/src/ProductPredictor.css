@@ -1,0 +1,288 @@
+.product-predictor {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.predictor-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.predictor-header h2 {
+  font-size: 28px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.predictor-header p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.year-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.year-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.year-input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.year-input-group input {
+  padding: 10px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.year-input-group input:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.year-input-group input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-color: white;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.year-input-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.year-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.predict-button {
+  display: block;
+  margin: 0 auto 20px;
+  padding: 12px 40px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.predict-button:hover:not(:disabled) {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.predict-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #f5c6cb;
+}
+
+.predictions-container {
+  background-color: white;
+  color: #333;
+  padding: 25px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.predictions-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.predictions-meta p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.predictions-meta strong {
+  color: #667eea;
+}
+
+.predictions-content {
+  margin-bottom: 25px;
+}
+
+.predictions-content h3 {
+  color: #667eea;
+  margin-top: 0;
+  font-size: 22px;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.product-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  display: flex;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-rank {
+  font-size: 24px;
+  font-weight: 700;
+  color: #667eea;
+  min-width: 40px;
+  text-align: center;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-info h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.product-info p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.trend {
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.trend.positive {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.trend.negative {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  font-style: italic;
+}
+
+.insight-section {
+  background-color: #f0f4f8;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #667eea;
+}
+
+.insight-section h3 {
+  color: #667eea;
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.insight-text {
+  color: #555;
+  line-height: 1.6;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.download-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #5568d3;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 600px) {
+  .product-predictor {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .predictor-header h2 {
+    font-size: 22px;
+  }
+
+  .year-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .predictions-container {
+    padding: 15px;
+  }
+
+  .products-list {
+    grid-template-columns: 1fr;
+  }
+
+  .predict-button,
+  .download-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

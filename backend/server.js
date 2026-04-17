@@ -45,4 +45,26 @@ app.get("/predict-products", async (req, res) => {
 
 });
 
+app.post("/predict-products-range", async (req, res) => {
+  try {
+    const { fromYear, toYear } = req.body;
+
+    if (!fromYear || !toYear) {
+      return res.status(400).json({ error: "fromYear and toYear are required" });
+    }
+
+    if (fromYear > toYear) {
+      return res.status(400).json({ error: "fromYear must be less than or equal to toYear" });
+    }
+
+    const data = await getAllProductsYearly(fromYear, toYear);
+    const result = await predictAllProducts(data);
+    
+    res.json(result);
+  } catch (error) {
+    console.error("Prediction error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(5000, () => console.log("AI Server Running"));
