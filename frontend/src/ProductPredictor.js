@@ -26,6 +26,8 @@ function ProductPredictor() {
     }
 
     try {
+      console.log('Sending request with years:', { fromYear: parseInt(fromYear), toYear: parseInt(toYear) });
+      
       const response = await fetch("http://localhost:5000/predict-products-range", {
         method: "POST",
         headers: {
@@ -43,6 +45,7 @@ function ProductPredictor() {
 
       const data = await response.json();
       console.log('Prediction Response >>>', data);
+      console.log('Number of predictions:', data.topProducts?.length || 0);
       setPredictions(data);
     } catch (err) {
       setError("Failed to fetch predictions: " + err.message);
@@ -117,7 +120,9 @@ function ProductPredictor() {
                   <div key={idx} className="product-card">
                     <div className="product-rank">#{idx + 1}</div>
                     <div className="product-info">
-                      <h4>{product.product}</h4>
+                      <h4>{product.product_name}</h4>
+                      <p><strong>Product ID:</strong> {product.product_id}</p>
+                      <p><strong>Manufacturer:</strong> {product.manufacturer}</p>
                       <p><strong>Predicted Demand:</strong> {product.prediction?.toFixed(2) || "N/A"} units</p>
                       <p><strong>Trend:</strong> <span className={`trend ${product.slope > 0 ? "positive" : "negative"}`}>
                         {product.slope > 0 ? "📈 Increasing" : "📉 Decreasing"}
