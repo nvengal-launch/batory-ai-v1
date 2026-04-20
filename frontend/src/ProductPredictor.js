@@ -113,7 +113,7 @@ function ProductPredictor() {
           </div>
 
           <div className="predictions-content">
-            <h3>Top 5 Predicted Products for 2026</h3>
+            <h3>Top {predictions.topProducts.length} Predicted Products for 2026</h3>
             {predictions.topProducts && predictions.topProducts.length > 0 ? (
               <div className="products-list">
                 {predictions.topProducts.map((product, idx) => (
