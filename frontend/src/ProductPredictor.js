@@ -1,42 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./ProductPredictor.css";
 
 function ProductPredictor() {
-  const [fromYear, setFromYear] = useState(2023);
-  const [toYear, setToYear] = useState(2025);
   const [predictions, setPredictions] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [metadata, setMetadata] = useState(null);
+  const pageCache = useRef({}); // Cache for storing fetched pages
+  const recordsPerPage = 10;
 
   const handlePredictProducts = async () => {
     setLoading(true);
     setError(null);
-
-    // Validate year range
-    // if (!fromYear || !toYear) {
-    //   setError("Please select both from year and to year");
-    //   setLoading(false);
-    //   return;
-    // }
-
-    // if (fromYear > toYear) {
-    //   setError("'From Year' must be less than or equal to 'To Year'");
-    //   setLoading(false);
-    //   return;
-    // }
+    setCurrentPage(1);
+    pageCache.current = {}; // Clear cache on new prediction
 
     try {
-      console.log('Sending request with years:', { fromYear: parseInt(fromYear), toYear: parseInt(toYear) });
-      
-      const response = await fetch("http://localhost:5000/predict-products-range", {
-        method: "POST",
+      const response = await fetch("http://localhost:5000/predict-products-paginated?page=1&limit=10", {
+        method: "GET",
         headers: {
           "Content-Type": "application/json"
-        },
-        // body: JSON.stringify({
-        //   fromYear: parseInt(fromYear),
-        //   toYear: parseInt(toYear)
-        // })
+        }
       });
 
       if (!response.ok) {
@@ -44,14 +30,74 @@ function ProductPredictor() {
       }
 
       const data = await response.json();
-      console.log('Prediction Response >>>', data);
-      console.log('Number of predictions:', data.topProducts?.length || 0);
-      setPredictions(data);
+      console.log('Paginated Response:', data);
+      
+      // Cache the first page
+      pageCache.current[1] = data.products;
+      
+      setPredictions(data.products);
+      setTotalPages(data.total_pages);
+      setMetadata(data.analysis_metadata);
     } catch (err) {
       setError("Failed to fetch predictions: " + err.message);
-      console.error("Error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch page data with caching
+  const fetchPage = async (page) => {
+    // Check if page is already cached
+    if (pageCache.current[page]) {
+      console.log(`Loading page ${page} from cache`);
+      setPredictions(pageCache.current[page]);
+      return;
+    }
+
+    // If not cached, fetch from server
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log(`Fetching page ${page} from server`);
+      const response = await fetch(`http://localhost:5000/predict-products-paginated?page=${page}&limit=10`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Cache the fetched page
+      pageCache.current[page] = data.products;
+      
+      setPredictions(data.products);
+      setMetadata(data.analysis_metadata);
+    } catch (err) {
+      setError("Failed to fetch page: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      fetchPage(newPage);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      fetchPage(newPage);
     }
   };
 
@@ -59,35 +105,7 @@ function ProductPredictor() {
     <div className="product-predictor">
       <div className="predictor-header">
         <h2>🚀 2026 Product Predictions</h2>
-        <p>Analyze sales trends from a specific year range to predict future products</p>
-      </div>
-
-      <div className="year-selection">
-        <div className="year-input-group">
-          <label htmlFor="fromYear">From Year:</label>
-          <input
-            id="fromYear"
-            type="number"
-            value={fromYear}
-            onChange={(e) => setFromYear(e.target.value)}
-            min="2000"
-            max="2026"
-            disabled={loading}
-          />
-        </div>
-
-        <div className="year-input-group">
-          <label htmlFor="toYear">To Year:</label>
-          <input
-            id="toYear"
-            type="number"
-            value={toYear}
-            onChange={(e) => setToYear(e.target.value)}
-            min="2000"
-            max="2026"
-            disabled={loading}
-          />
-        </div>
+        <p>Analyze sales trends to predict future products</p>
       </div>
 
       <button
@@ -107,138 +125,77 @@ function ProductPredictor() {
       {predictions && (
         <div className="predictions-container">
           <div className="predictions-meta">
-            <p><strong>Analysis Period:</strong> {fromYear} - {toYear}</p>
-            <p><strong>Prediction Year:</strong> 2026</p>
-            <p><strong>Top Products:</strong> {predictions.topProducts?.length || 0}</p>
+            <p><strong>Products Analyzed:</strong> {metadata?.total_products_analyzed || 0}</p>
+            <p><strong>Positive Trends:</strong> {metadata?.products_with_positive_trend || 0}</p>
+            <p><strong>Total Pages:</strong> {totalPages}</p>
           </div>
 
           <div className="predictions-content">
-            <h3>Top {predictions.topProducts.length} Predicted Products for 2026</h3>
-            {predictions.topProducts && predictions.topProducts.length > 0 ? (
-              <div className="products-list">
-                {predictions.topProducts.map((product, idx) => (
-                  <div key={idx} className="product-card">
-                    <div className="product-rank">#{idx + 1}</div>
-                    <div className="product-info">
-                      <h4>{product.product_name}</h4>
-                      <p><strong>Product ID:</strong> {product.product_id}</p>
-                      <p><strong>Manufacturer:</strong> {product.manufacturer}</p>
-                      <p><strong>Predicted Demand:</strong> {product.prediction?.toFixed(2) || "N/A"} units</p>
-                      <p><strong>Trend:</strong> <span className={`trend ${product.slope > 0 ? "positive" : "negative"}`}>
-                        {product.slope > 0 ? "📈 Increasing" : "📉 Decreasing"}
-                      </span></p>
-                      <p><strong>Slope:</strong> {product.slope?.toFixed(4) || "N/A"}</p>
-                    </div>
-                  </div>
-                ))}
+            <h3>Top Predicted Products for 2026</h3>
+            {loading ? (
+              <div className="loader-container">
+                <div className="spinner"></div>
+                <p>Loading predictions...</p>
+              </div>
+            ) : predictions && predictions.length > 0 ? (
+              <div className="table-wrapper">
+                <table className="predictions-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Product ID</th>
+                      <th>Product Name</th>
+                      <th>Manufacturer</th>
+                      <th>Predicted Demand</th>
+                      <th>Slope</th>
+                      <th>Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {predictions.map((product, idx) => {
+                      const globalIdx = (currentPage - 1) * recordsPerPage + idx;
+                      return (
+                        <tr key={globalIdx}>
+                          <td>{globalIdx + 1}</td>
+                          <td>{product.product_id}</td>
+                          <td>{product.product_name}</td>
+                          <td>{product.manufacturer}</td>
+                          <td>{product.prediction?.toFixed(2) || "N/A"} units</td>
+                          <td>{product.slope?.toFixed(4) || "N/A"}</td>
+                          <td>
+                            <span className={`trend-badge ${product.slope > 0 ? "positive" : "negative"}`}>
+                              {product.slope > 0 ? "📈 Increasing" : "📉 Decreasing"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                <div className="pagination">
+                  <button 
+                    onClick={handlePrevious}
+                    disabled={currentPage === 1 || loading}
+                    className="pagination-btn"
+                  >
+                    ← Previous
+                  </button>
+                  <span className="page-info">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button 
+                    onClick={handleNext}
+                    disabled={currentPage === totalPages || loading}
+                    className="pagination-btn"
+                  >
+                    Next →
+                  </button>
+                </div>
               </div>
             ) : (
               <p className="no-data">No prediction data available</p>
             )}
-          </div>
-
-          {predictions.insight && (
-            <div className="insight-section">
-              <h3>📊 Market Insights</h3>
-              <div className="insight-text">
-                {predictions.insight}
-              </div>
-            </div>
-          )}
-
-          <div className="download-buttons-group">
-            <button
-              onClick={async () => {
-                try {
-                  const response = await fetch("http://localhost:5000/export-predictions-excel", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                      fromYear,
-                      toYear,
-                      predictions: predictions.topProducts,
-                      allProducts: predictions.allProducts,
-                      analysis_metadata: predictions.analysis_metadata
-                    })
-                  });
-
-                  if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                  }
-
-                  const blob = await response.blob();
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `Product_Predictions_2026_${fromYear}-${toYear}_${Date.now()}.xlsx`;
-                  document.body.appendChild(a);
-                  a.click();
-                  window.URL.revokeObjectURL(url);
-                  document.body.removeChild(a);
-                } catch (err) {
-                  console.error("Excel download error:", err);
-                  alert("Failed to download Excel file: " + err.message);
-                }
-              }}
-              className="download-button excel-button"
-            >
-              📊 Download as Excel
-            </button>
-
-            <button
-              onClick={() => {
-                const element = document.createElement("a");
-                const file = new Blob([JSON.stringify(predictions, null, 2)], { type: "application/json" });
-                element.href = URL.createObjectURL(file);
-                element.download = `product-predictions-2026-${Date.now()}.json`;
-                document.body.appendChild(element);
-                element.click();
-                document.body.removeChild(element);
-              }}
-              className="download-button json-button"
-            >
-              📥 Download as JSON
-            </button>
-
-            <button
-              onClick={async () => {
-                try {
-                  const response = await fetch("http://localhost:5000/export-analyzed-data-excel", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                      fromYear,
-                      toYear,
-                      rawData: predictions.rawAnalyzedData
-                    })
-                  });
-
-                  if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                  }
-
-                  const blob = await response.blob();
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `Analyzed_Data_${fromYear}-${toYear}_${Date.now()}.xlsx`;
-                  document.body.appendChild(a);
-                  a.click();
-                  window.URL.revokeObjectURL(url);
-                  document.body.removeChild(a);
-                } catch (err) {
-                  console.error("Raw data download error:", err);
-                  alert("Failed to download raw data: " + err.message);
-                }
-              }}
-              className="download-button raw-data-button"
-            >
-              📋 Download Raw Data
-            </button>
           </div>
         </div>
       )}

@@ -69,3 +69,61 @@ Explain why these products will have growing demand in 2026 based on trends and 
     insight
   };
 }
+
+export async function getPaginatedProducts(data, page = 1, recordsPerPage = 10) {
+  const grouped = {};
+
+  // group by unique product_id
+  data.forEach(d => {
+    if (!grouped[d.product_id]) {
+      grouped[d.product_id] = [];
+    }
+    grouped[d.product_id].push(d);
+  });
+
+  let predictions = [];
+  for (let productId in grouped) {
+    const productData = grouped[productId];
+    const stats = predictProductDemand(productData);
+    const productName = productData[0]?.product_name || 'Unknown Product';
+    const manufacturer = productData[0]?.manufacturer || 'Unknown Manufacturer';
+
+    predictions.push({
+      product_id: productId,
+      product_name: productName,
+      manufacturer,
+      prediction: stats.prediction2026,
+      slope: stats.slope
+    });
+  }
+
+  // Filter: Only products with positive slope and positive 2026 prediction
+  let upcomingProducts = predictions.filter(p => 
+    p.slope > 0 && p.prediction > 0
+  );
+
+  // Sort by prediction value (highest to lowest)
+  upcomingProducts.sort((a, b) => b.prediction - a.prediction);
+
+  // Calculate pagination
+  const totalRecords = upcomingProducts.length;
+  const totalPages = Math.ceil(totalRecords / recordsPerPage);
+  const startIdx = (page - 1) * recordsPerPage;
+  const endIdx = startIdx + recordsPerPage;
+  const paginatedProducts = upcomingProducts.slice(startIdx, endIdx);
+
+//   console.log(`Pagination: page ${page}, records ${startIdx}-${endIdx}, total: ${totalRecords}`);
+
+  return {
+    current_page: page,
+    records_per_page: recordsPerPage,
+    total_records: totalRecords,
+    total_pages: totalPages,
+    products: paginatedProducts,
+    analysis_metadata: {
+      total_products_analyzed: predictions.length,
+      products_with_positive_trend: upcomingProducts.length,
+      analysis_timestamp: new Date().toISOString()
+    }
+  };
+}

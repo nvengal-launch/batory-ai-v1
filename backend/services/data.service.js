@@ -28,11 +28,11 @@ export async function getAllProductsYearly(fromYear = null, toYear = null) {
     ORDER BY p.id, year ASC
   `;
 
-  console.log('SQL Query:', sql);
+//   console.log('SQL Query:', sql);
 
   const result = await runQuery(sql);
-  console.log('Query returned', result.length, 'rows with year range', fromYear, '-', toYear);
-  console.log('Raw data:', JSON.stringify(result, null, 2));
+//   console.log('Query returned', result.length, 'rows with year range', fromYear, '-', toYear);
+//   console.log('Raw data:', JSON.stringify(result, null, 2));
   
   return result;
 }

@@ -1,7 +1,7 @@
 import { SimpleLinearRegression } from "ml-regression";
 
 export function predictProductDemand(data) {
-    console.log('Data for regression >>>', data);
+    // console.log('Data for regression >>>', data);
 
   // Extract and convert X and Y values
   const validData = data
