@@ -240,8 +240,14 @@
   white-space: pre-wrap;
 }
 
+.download-buttons-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 .download-button {
-  width: 100%;
   padding: 12px;
   background-color: #667eea;
   color: white;
@@ -254,8 +260,31 @@
 }
 
 .download-button:hover {
-  background-color: #5568d3;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.excel-button {
+  background-color: #27AE60;
+}
+
+.excel-button:hover {
+  background-color: #229954;
+}
+
+.json-button {
+  background-color: #F39C12;
+}
+
+.json-button:hover {
+  background-color: #E67E22;
+}
+
+.raw-data-button {
+  background-color: #3498DB;
+}
+
+.raw-data-button:hover {
+  background-color: #2980B9;
 }
 
 @media (max-width: 600px) {
@@ -280,7 +309,15 @@
     grid-template-columns: 1fr;
   }
 
-  .predict-button,
+  .predict-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .download-buttons-group {
+    grid-template-columns: 1fr;
+  }
+
   .download-button {
     font-size: 14px;
     padding: 10px;

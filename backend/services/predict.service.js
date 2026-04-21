@@ -58,7 +58,14 @@ Explain why these products will have growing demand in 2026 based on trends and 
 `);
 
   return {
+    analysis_metadata: {
+      total_products_analyzed: predictions.length,
+      products_with_positive_trend: upcomingProducts.length,
+      analysis_timestamp: new Date().toISOString()
+    },
+    allProducts: predictions,
     topProducts,
+    rawAnalyzedData: data,
     insight
   };
 }

@@ -13,17 +13,17 @@ function ProductPredictor() {
     setError(null);
 
     // Validate year range
-    if (!fromYear || !toYear) {
-      setError("Please select both from year and to year");
-      setLoading(false);
-      return;
-    }
+    // if (!fromYear || !toYear) {
+    //   setError("Please select both from year and to year");
+    //   setLoading(false);
+    //   return;
+    // }
 
-    if (fromYear > toYear) {
-      setError("'From Year' must be less than or equal to 'To Year'");
-      setLoading(false);
-      return;
-    }
+    // if (fromYear > toYear) {
+    //   setError("'From Year' must be less than or equal to 'To Year'");
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       console.log('Sending request with years:', { fromYear: parseInt(fromYear), toYear: parseInt(toYear) });
@@ -33,10 +33,10 @@ function ProductPredictor() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          fromYear: parseInt(fromYear),
-          toYear: parseInt(toYear)
-        })
+        // body: JSON.stringify({
+        //   fromYear: parseInt(fromYear),
+        //   toYear: parseInt(toYear)
+        // })
       });
 
       if (!response.ok) {
@@ -146,20 +146,100 @@ function ProductPredictor() {
             </div>
           )}
 
-          <button
-            onClick={() => {
-              const element = document.createElement("a");
-              const file = new Blob([JSON.stringify(predictions, null, 2)], { type: "application/json" });
-              element.href = URL.createObjectURL(file);
-              element.download = `product-predictions-2026-${Date.now()}.json`;
-              document.body.appendChild(element);
-              element.click();
-              document.body.removeChild(element);
-            }}
-            className="download-button"
-          >
-            📥 Download Predictions
-          </button>
+          <div className="download-buttons-group">
+            <button
+              onClick={async () => {
+                try {
+                  const response = await fetch("http://localhost:5000/export-predictions-excel", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                      fromYear,
+                      toYear,
+                      predictions: predictions.topProducts,
+                      allProducts: predictions.allProducts,
+                      analysis_metadata: predictions.analysis_metadata
+                    })
+                  });
+
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `Product_Predictions_2026_${fromYear}-${toYear}_${Date.now()}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                } catch (err) {
+                  console.error("Excel download error:", err);
+                  alert("Failed to download Excel file: " + err.message);
+                }
+              }}
+              className="download-button excel-button"
+            >
+              📊 Download as Excel
+            </button>
+
+            <button
+              onClick={() => {
+                const element = document.createElement("a");
+                const file = new Blob([JSON.stringify(predictions, null, 2)], { type: "application/json" });
+                element.href = URL.createObjectURL(file);
+                element.download = `product-predictions-2026-${Date.now()}.json`;
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+              }}
+              className="download-button json-button"
+            >
+              📥 Download as JSON
+            </button>
+
+            <button
+              onClick={async () => {
+                try {
+                  const response = await fetch("http://localhost:5000/export-analyzed-data-excel", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                      fromYear,
+                      toYear,
+                      rawData: predictions.rawAnalyzedData
+                    })
+                  });
+
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `Analyzed_Data_${fromYear}-${toYear}_${Date.now()}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                } catch (err) {
+                  console.error("Raw data download error:", err);
+                  alert("Failed to download raw data: " + err.message);
+                }
+              }}
+              className="download-button raw-data-button"
+            >
+              📋 Download Raw Data
+            </button>
+          </div>
         </div>
       )}
     </div>
