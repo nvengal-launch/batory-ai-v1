@@ -14,7 +14,9 @@ export async function getAllProductsYearly(fromYear = null, toYear = null) {
       SUM(d.quantity) AS total
     FROM orders o
     JOIN details d ON d.order_id = o.id
-    JOIN products p ON p.id = d.product_id`;
+    JOIN products p ON p.id = d.product_id
+    WHERE p.enabled = true
+    `;
 
   // Add year range filter if provided
   // Fetches from 01-01-fromYear to before 01-01-(toYear+1)
